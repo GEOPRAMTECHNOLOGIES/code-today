@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Today Dashboard</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #f3f4f6;
+        color: #111827;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top, rgba(59, 130, 246, 0.12), transparent 35%), #eef2ff;
+      }
+      .page {
+        width: min(96vw, 1120px);
+        margin: 32px auto;
+        padding: 0 16px;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #2563eb, #8b5cf6);
+        display: grid;
+        place-items: center;
+        color: white;
+        font-weight: 800;
+      }
+      .brand-title {
+        font-size: 1.5rem;
+        margin: 0;
+      }
+      .brand-subtitle {
+        margin: 4px 0 0;
+        color: #4b5563;
+        font-size: 0.95rem;
+      }
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .tab-button {
+        border: none;
+        border-radius: 999px;
+        padding: 10px 18px;
+        cursor: pointer;
+        background: #e5e7eb;
+        color: #374151;
+        font-weight: 600;
+        transition: background 0.2s ease, color 0.2s ease;
+      }
+      .tab-button.active {
+        background: #2563eb;
+        color: white;
+      }
+      .panel {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.08);
+        padding: 28px;
+      }
+      .grid-two {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .card {
+        background: #f8fafc;
+        border-radius: 20px;
+        padding: 20px;
+        min-height: 100px;
+      }
+      .card h2 {
+        margin: 0 0 8px;
+        font-size: 1.15rem;
+      }
+      .form-grid {
+        display: grid;
+        gap: 18px;
+      }
+      label {
+        display: grid;
+        gap: 8px;
+        font-size: 0.95rem;
+        color: #374151;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        border-radius: 16px;
+        border: 1px solid #d1d5db;
+        padding: 14px 16px;
+        background: white;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+      }
+      textarea {
+        min-height: 140px;
+        resize: vertical;
+      }
+      .button {
+        border: none;
+        border-radius: 14px;
+        padding: 14px 20px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #2563eb, #4f46e5);
+        color: white;
+        font-weight: 700;
+        transition: transform 0.16s ease, box-shadow 0.16s ease;
+      }
+      .button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 16px 30px rgba(37, 99, 235, 0.18);
+      }
+      .button.secondary {
+        background: #f3f4f6;
+        color: #111827;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+      .status-pending { background: #fde68a; color: #92400e; }
+      .status-success { background: #bbf7d0; color: #166534; }
+      .status-failed { background: #fecaca; color: #991b1b; }
+      .message {
+        padding: 18px 20px;
+        border-radius: 18px;
+        background: #eff6ff;
+        color: #1e3a8a;
+        margin-top: 18px;
+      }
+      .service-card {
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1px solid #e5e7eb;
+        display: grid;
+        grid-template-columns: 120px 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+      .service-card img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+      }
+      .service-card-body {
+        padding: 16px;
+      }
+      .service-card h3 {
+        margin: 0 0 8px;
+        font-size: 1.1rem;
+      }
+      .service-card p {
+        margin: 0;
+        color: #4b5563;
+        line-height: 1.65;
+      }
+      .price-meta {
+        margin: 12px 0 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .price-current {
+        font-size: 1.15rem;
+        font-weight: 700;
+      }
+      .price-previous {
+        text-decoration: line-through;
+        color: #6b7280;
+      }
+      .hidden { display: none !important; }
+      .link { color: #2563eb; text-decoration: none; }
+      @media (max-width: 760px) {
+        .grid-two { grid-template-columns: 1fr; }
+        .service-card { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark">CT</div>
+          <div>
+            <p class="brand-title">Code Today Dashboard</p>
+            <p class="brand-subtitle">Admin service management and MPesa checkout</p>
+          </div>
+        </div>
+        <div>
+          <button class="tab-button active" data-panel="shop">Shop</button>
+          <button class="tab-button" data-panel="admin">Admin</button>
+        </div>
+      </div>
+
+      <section id="shop" class="panel">
+        <div class="grid-two">
+          <div>
+            <h2>Checkout and Services</h2>
+            <p class="description">Browse available services, then enter your MPesa number to start checkout. A confirmation message will show once the request is sent.</p>
+          </div>
+          <div>
+            <div class="card">
+              <h2>Login for admin actions</h2>
+              <div class="form-grid">
+                <label>
+                  Email
+                  <input type="text" id="login-email" placeholder="admin@example.com" />
+                </label>
+                <label>
+                  Password
+                  <input type="password" id="login-password" placeholder="••••••••" />
+                </label>
+                <button class="button" id="login-submit">Login</button>
+                <button class="button secondary" id="logout-button">Logout</button>
+              </div>
+              <p class="note">Use your admin account to create services and review transactions.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="message-box" class="message hidden"></div>
+
+        <div id="service-list" class="form-grid"></div>
+      </section>
+
+      <section id="admin" class="panel hidden">
+        <div class="grid-two">
+          <div>
+            <h2>Service creation</h2>
+            <p class="description">Create a service with title, description, previous price in KSH, current price, and multiple image URLs.</p>
+            <div class="form-grid">
+              <label>
+                Service title
+                <input type="text" id="service-title" placeholder="Website design" />
+              </label>
+              <label>
+                Description
+                <textarea id="service-description" placeholder="Describe the service benefits..."></textarea>
+              </label>
+              <label>
+                Previous price (KSH)
+                <input type="number" id="service-previous" placeholder="12000" />
+              </label>
+              <label>
+                Current price (KSH)
+                <input type="number" id="service-current" placeholder="9000" />
+              </label>
+              <label>
+                Image URLs (comma separated)
+                <textarea id="service-images" placeholder="https://... , https://..."></textarea>
+              </label>
+              <button class="button" id="service-create">Create service</button>
+            </div>
+          </div>
+
+          <div>
+            <h2>Transaction activity</h2>
+            <p class="description">Review all STK Push transactions with status values including pending, success, and failed.</p>
+            <div id="payment-table"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      const state = {
+        token: localStorage.getItem('ct_token') || null,
+        services: [],
+        adminPayments: []
+      };
+
+      const elements = {
+        tabs: document.querySelectorAll('.tab-button'),
+        panels: document.querySelectorAll('.panel'),
+        loginEmail: document.getElementById('login-email'),
+        loginPassword: document.getElementById('login-password'),
+        loginSubmit: document.getElementById('login-submit'),
+        logoutButton: document.getElementById('logout-button'),
+        messageBox: document.getElementById('message-box'),
+        serviceList: document.getElementById('service-list'),
+        serviceCreate: document.getElementById('service-create'),
+        paymentTable: document.getElementById('payment-table'),
+        serviceTitle: document.getElementById('service-title'),
+        serviceDescription: document.getElementById('service-description'),
+        servicePrevious: document.getElementById('service-previous'),
+        serviceCurrent: document.getElementById('service-current'),
+        serviceImages: document.getElementById('service-images')
+      };
+
+      function setMessage(message, type = 'info') {
+        if (!elements.messageBox) return;
+        elements.messageBox.textContent = message;
+        elements.messageBox.className = 'message';
+        elements.messageBox.classList.add(type === 'error' ? 'status-failed' : 'status-success');
+        elements.messageBox.classList.remove('hidden');
+      }
+
+      function clearMessage() {
+        elements.messageBox.textContent = '';
+        elements.messageBox.className = 'message hidden';
+      }
+
+      function createAuthHeaders() {
+        const headers = { 'Content-Type': 'application/json' };
+        if (state.token) headers.Authorization = `Bearer ${state.token}`;
+        return headers;
+      }
+
+      async function fetchServices() {
+        try {
+          const response = await fetch('/services');
+          const services = await response.json();
+          state.services = Array.isArray(services) ? services : [];
+          renderServices();
+        } catch (error) {
+          setMessage('Unable to load services. Please try again later.', 'error');
+        }
+      }
+
+      async function fetchPayments() {
+        if (!state.token) return;
+        try {
+          const response = await fetch('/admin/payments', {
+            headers: createAuthHeaders()
+          });
+          if (!response.ok) {
+            throw new Error('Unauthorized');
+          }
+          const payments = await response.json();
+          state.adminPayments = payments;
+          renderPayments();
+        } catch (error) {
+          elements.paymentTable.innerHTML = '<p class="note">Unable to load transactions. Login as admin first.</p>';
+        }
+      }
+
+      function renderServices() {
+        if (!elements.serviceList) return;
+        if (!state.services.length) {
+          elements.serviceList.innerHTML = '<p class="note">No live services available yet.</p>';
+          return;
+        }
+        elements.serviceList.innerHTML = state.services
+          .map((service) => {
+            const image = service.images && service.images.length ? service.images[0] : 'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=800&q=80';
+            return `
+              <div class="service-card">
+                <img src="${image}" alt="${service.title}" />
+                <div class="service-card-body">
+                  <h3>${service.title}</h3>
+                  <p>${service.description || 'No description provided.'}</p>
+                  <div class="price-meta">
+                    <span class="price-current">KSH ${service.currentPrice.toLocaleString()}</span>
+                    ${service.previousPrice ? `<span class="price-previous">KSH ${service.previousPrice.toLocaleString()}</span>` : ''}
+                  </div>
+                  <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                    <button class="button" onclick="promptCheckout('${service._id}', '${service.title}', ${service.currentPrice})">Checkout</button>
+                    <a class="link" href="${service.images && service.images.length ? service.images[0] : '#'}" target="_blank">Preview image</a>
+                  </div>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      window.promptCheckout = async (serviceId, title, amount) => {
+        clearMessage();
+        const phone = prompt(`Enter MPesa phone number to pay KSH ${amount} for ${title}`);
+        if (!phone) {
+          setMessage('Checkout cancelled.', 'error');
+          return;
+        }
+        try {
+          const response = await fetch('/payments/stkpush', {
+            method: 'POST',
+            headers: createAuthHeaders(),
+            body: JSON.stringify({ phone, amount, serviceId })
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || 'Checkout failed');
+          }
+          setMessage('STK Push request sent. Check your phone and complete the payment.', 'success');
+        } catch (error) {
+          setMessage(error.message || 'Unable to send STK Push request.', 'error');
+        }
+      };
+
+      async function login() {
+        clearMessage();
+        const email = elements.loginEmail.value.trim();
+        const password = elements.loginPassword.value;
+        if (!email || !password) {
+          setMessage('Please enter email and password.', 'error');
+          return;
+        }
+        try {
+          const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || 'Login failed');
+          }
+          state.token = data.token;
+          localStorage.setItem('ct_token', data.token);
+          setMessage('Logged in successfully. You can now create services and review transactions.', 'success');
+          fetchPayments();
+        } catch (error) {
+          setMessage(error.message, 'error');
+        }
+      }
+
+      function logout() {
+        state.token = null;
+        localStorage.removeItem('ct_token');
+        setMessage('Logged out successfully.', 'success');
+        elements.paymentTable.innerHTML = '<p class="note">Login as admin to load transactions.</p>';
+      }
+
+      async function createService() {
+        clearMessage();
+        const title = elements.serviceTitle.value.trim();
+        const description = elements.serviceDescription.value.trim();
+        const previousPrice = Number(elements.servicePrevious.value);
+        const currentPrice = Number(elements.serviceCurrent.value);
+        const images = elements.serviceImages.value
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean);
+
+        if (!title || !description || !currentPrice) {
+          setMessage('Please complete title, description, and current price.', 'error');
+          return;
+        }
+        try {
+          const response = await fetch('/services', {
+            method: 'POST',
+            headers: createAuthHeaders(),
+            body: JSON.stringify({
+              title,
+              description,
+              previousPrice: previousPrice || 0,
+              currentPrice,
+              images
+            })
+          });
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || 'Service creation failed');
+          }
+          elements.serviceTitle.value = '';
+          elements.serviceDescription.value = '';
+          elements.servicePrevious.value = '';
+          elements.serviceCurrent.value = '';
+          elements.serviceImages.value = '';
+          setMessage('Service created successfully.', 'success');
+          fetchServices();
+          fetchPayments();
+        } catch (error) {
+          setMessage(error.message || 'Unable to create service.', 'error');
+        }
+      }
+
+      function renderPayments() {
+        if (!elements.paymentTable) return;
+        if (!state.adminPayments.length) {
+          elements.paymentTable.innerHTML = '<p class="note">No transaction activity found yet.</p>';
+          return;
+        }
+        elements.paymentTable.innerHTML = state.adminPayments
+          .map((payment) => {
+            const statusClass = payment.status === 'success' ? 'status-success' : payment.status === 'failed' ? 'status-failed' : 'status-pending';
+            return `
+              <div class="card">
+                <h3>${payment.service?.title || 'No service selected'}</h3>
+                <p>${payment.user?.name || payment.user?.email || 'Unknown user'}</p>
+                <div class="price-meta">
+                  <span class="price-current">KSH ${payment.amount.toLocaleString()}</span>
+                  <span class="status-pill ${statusClass}">${payment.status}</span>
+                </div>
+                <p class="note" style="margin-top: 12px;">Created: ${new Date(payment.createdAt).toLocaleString()}</p>
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      elements.loginSubmit.addEventListener('click', (event) => {
+        event.preventDefault();
+        login();
+      });
+      elements.logoutButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        logout();
+      });
+      elements.serviceCreate.addEventListener('click', (event) => {
+        event.preventDefault();
+        createService();
+      });
+
+      elements.tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          elements.tabs.forEach((button) => button.classList.remove('active'));
+          tab.classList.add('active');
+          elements.panels.forEach((panel) => panel.classList.add('hidden'));
+          document.getElementById(tab.dataset.panel).classList.remove('hidden');
+        });
+      });
+
+      document.addEventListener('DOMContentLoaded', () => {
+        fetchServices();
+        if (state.token) fetchPayments();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "code-today-workspace",
+  "private": true,
+  "workspaces": [
+    "server"
+  ],
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "cd server && nodemon index.js"
+  },
+  "license": "MIT"
+}
